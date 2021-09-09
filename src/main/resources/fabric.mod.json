@@ -3,7 +3,7 @@
   "id": "upeenpiss",
   "version": "${version}",
   "name": "UPeeNPiss",
-  "description": "Forwards port 25565 on server start with UPNP",
+  "description": "UPNP for dedicated servers",
   "authors": [
     "PigCart"
   ],

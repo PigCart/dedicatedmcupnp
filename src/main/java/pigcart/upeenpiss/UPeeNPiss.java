@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class UPeeNPiss implements ModInitializer {
     private static final Path CONFIG_FILE = Paths.get("config", "upnp.yaml");
@@ -32,6 +33,7 @@ public class UPeeNPiss implements ModInitializer {
             PortsConfig config = mapper.readValue(CONFIG_FILE.toFile(), PortsConfig.class);
             tcpPorts = config.getTcpPorts();
             udpPorts = config.getUdpPorts();
+            System.out.println(Arrays.toString(tcpPorts) + Arrays.toString(udpPorts));
             if (tcpPorts == null || udpPorts == null){
                 this.createConfig();
             }
@@ -84,9 +86,9 @@ public class UPeeNPiss implements ModInitializer {
     private void createConfig() throws IOException {
         if (!Files.exists(CONFIG_FILE)) {
             OutputStream out = Files.newOutputStream(CONFIG_FILE);
-            InputStream defaultConfigInputStream = UPeeNPiss.class.getClassLoader().getResourceAsStream("default_config.yaml");
+            InputStream defaultConfigInputStream = UPeeNPiss.class.getClassLoader().getResourceAsStream("default_ports_config.yaml");
             if (defaultConfigInputStream == null) {
-                throw new IOException("Could not load default_config.yaml");
+                throw new IOException("Could not load default_ports_config.yaml");
             }
             byte[] buffer = new byte[8192];
             int bytesRead;
