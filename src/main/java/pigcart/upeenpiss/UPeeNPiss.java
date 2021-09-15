@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 public class UPeeNPiss implements ModInitializer {
     private static final Path CONFIG_FILE = Paths.get("config", "upnp.yaml");
@@ -33,7 +32,6 @@ public class UPeeNPiss implements ModInitializer {
             PortsConfig config = mapper.readValue(CONFIG_FILE.toFile(), PortsConfig.class);
             tcpPorts = config.getTcpPorts();
             udpPorts = config.getUdpPorts();
-            System.out.println(Arrays.toString(tcpPorts) + Arrays.toString(udpPorts));
             if (tcpPorts == null || udpPorts == null){
                 this.createConfig();
             }

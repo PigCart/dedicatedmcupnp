@@ -1,5 +1,6 @@
 tcpPorts: [25565]
 udpPorts: []
+# put comma separated values between the brackets
 
 # Ports to consider:
 # TCP 25565 - Default port for Minecraft servers
