@@ -1,4 +1,4 @@
-package pigcart.upeenpiss;
+package pigcart.dedicatedmcupnp;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

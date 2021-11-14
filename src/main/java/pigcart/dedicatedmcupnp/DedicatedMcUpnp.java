@@ -1,4 +1,4 @@
-package pigcart.upeenpiss;
+package pigcart.dedicatedmcupnp;
 
 import com.dosse.upnp.UPnP;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class UPeeNPiss implements ModInitializer {
+public class DedicatedMcUpnp implements ModInitializer {
     private static final Path CONFIG_FILE = Paths.get("config", "upnp.yaml");
     Integer[] tcpPorts;
     Integer[] udpPorts;
@@ -120,7 +120,7 @@ public class UPeeNPiss implements ModInitializer {
     private void createConfig() throws IOException {
         if (!Files.exists(CONFIG_FILE)) {
             OutputStream out = Files.newOutputStream(CONFIG_FILE);
-            InputStream defaultConfigInputStream = UPeeNPiss.class.getClassLoader().getResourceAsStream("default_ports_config.yaml");
+            InputStream defaultConfigInputStream = DedicatedMcUpnp.class.getClassLoader().getResourceAsStream("default_ports_config.yaml");
             if (defaultConfigInputStream == null) {
                 throw new IOException("Could not load default_ports_config.yaml");
             }
