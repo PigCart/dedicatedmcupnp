@@ -4,8 +4,11 @@ import com.dosse.upnp.UPnP;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.text.LiteralText;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +26,38 @@ public class UPeeNPiss implements ModInitializer {
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+            if (dedicated) {
+                dispatcher.register(CommandManager.literal("upnp")
+                        .executes(ctx -> {
+                            if (!UPnP.isUPnPAvailable()) {
+                                ctx.getSource().sendFeedback(new LiteralText("UPnP is not available on this network."), false);
+                            } else {
+                                ctx.getSource().sendFeedback(new LiteralText("IP Address: "+UPnP.getExternalIP()), false);
+                                ctx.getSource().sendFeedback(new LiteralText("The following ports are mapped: "), false);
+                                int portsMapped = 0;
+                                for (int port: tcpPorts) {
+                                    if (UPnP.isMappedTCP(port)) {
+                                        ctx.getSource().sendFeedback(new LiteralText("TCP " + port), false);
+                                        portsMapped ++ ;
+                                    }
+                                }
+                                for (int port: udpPorts) {
+                                    if (UPnP.isMappedUDP(port)) {
+                                        ctx.getSource().sendFeedback(new LiteralText("UDP " + port), false);
+                                        portsMapped ++ ;
+                                    }
+                                }
+                                if (portsMapped == 0) {
+                                    ctx.getSource().sendFeedback(new LiteralText("No ports are mapped."), false);
+                                }
+                            }
+                            return 0;
+                        })
+                );
+            }
+        });
 
         try {
             if (!Files.exists(CONFIG_FILE)) {
@@ -62,6 +97,7 @@ public class UPeeNPiss implements ModInitializer {
                     System.out.println("UPnP failed to open UDP port "+port);
                 }
             }
+
         } else {
             System.out.println("UPnP is not available");
         }
