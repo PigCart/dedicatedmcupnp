@@ -4,11 +4,11 @@ import com.dosse.upnp.UPnP;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,30 +27,30 @@ public class DedicatedMcUpnp implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            if (dedicated) {
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            if (environment.dedicated) {
                 dispatcher.register(CommandManager.literal("upnp")
                         .executes(ctx -> {
                             if (!UPnP.isUPnPAvailable()) {
-                                ctx.getSource().sendFeedback(new LiteralText("UPnP is not available on this network."), false);
+                                ctx.getSource().sendFeedback(Text.of("UPnP is not available on this network."), false);
                             } else {
-                                ctx.getSource().sendFeedback(new LiteralText("IP Address: "+UPnP.getExternalIP()), false);
-                                ctx.getSource().sendFeedback(new LiteralText("The following ports are mapped: "), false);
+                                ctx.getSource().sendFeedback(Text.of("IP Address: "+UPnP.getExternalIP()), false);
+                                ctx.getSource().sendFeedback(Text.of("The following ports are mapped: "), false);
                                 int portsMapped = 0;
                                 for (int port: tcpPorts) {
                                     if (UPnP.isMappedTCP(port)) {
-                                        ctx.getSource().sendFeedback(new LiteralText("TCP " + port), false);
+                                        ctx.getSource().sendFeedback(Text.of("TCP " + port), false);
                                         portsMapped ++ ;
                                     }
                                 }
                                 for (int port: udpPorts) {
                                     if (UPnP.isMappedUDP(port)) {
-                                        ctx.getSource().sendFeedback(new LiteralText("UDP " + port), false);
+                                        ctx.getSource().sendFeedback(Text.of("UDP " + port), false);
                                         portsMapped ++ ;
                                     }
                                 }
                                 if (portsMapped == 0) {
-                                    ctx.getSource().sendFeedback(new LiteralText("No ports are mapped."), false);
+                                    ctx.getSource().sendFeedback(Text.of("No ports are mapped."), false);
                                 }
                             }
                             return 0;
@@ -119,6 +119,9 @@ public class DedicatedMcUpnp implements ModInitializer {
 
     private void createConfig() throws IOException {
         if (!Files.exists(CONFIG_FILE)) {
+            if (!Files.exists(CONFIG_FILE.getParent())) {
+                Files.createDirectories(CONFIG_FILE.getParent().toAbsolutePath());
+            }
             OutputStream out = Files.newOutputStream(CONFIG_FILE);
             InputStream defaultConfigInputStream = DedicatedMcUpnp.class.getClassLoader().getResourceAsStream("default_ports_config.yaml");
             if (defaultConfigInputStream == null) {
