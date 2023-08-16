@@ -32,25 +32,25 @@ public class DedicatedMcUpnp implements ModInitializer {
                 dispatcher.register(CommandManager.literal("upnp")
                         .executes(ctx -> {
                             if (!UPnP.isUPnPAvailable()) {
-                                ctx.getSource().sendFeedback(Text.of("UPnP is not available on this network."), false);
+                                ctx.getSource().sendFeedback(() -> Text.of("UPnP is not available on this network."), false);
                             } else {
-                                ctx.getSource().sendFeedback(Text.of("IP Address: "+UPnP.getExternalIP()), false);
-                                ctx.getSource().sendFeedback(Text.of("The following ports are mapped: "), false);
+                                ctx.getSource().sendFeedback(() -> Text.of("IP Address: "+UPnP.getExternalIP()), false);
+                                ctx.getSource().sendFeedback(() -> Text.of("The following ports are mapped: "), false);
                                 int portsMapped = 0;
                                 for (int port: tcpPorts) {
                                     if (UPnP.isMappedTCP(port)) {
-                                        ctx.getSource().sendFeedback(Text.of("TCP " + port), false);
+                                        ctx.getSource().sendFeedback(() -> Text.of("TCP " + port), false);
                                         portsMapped ++ ;
                                     }
                                 }
                                 for (int port: udpPorts) {
                                     if (UPnP.isMappedUDP(port)) {
-                                        ctx.getSource().sendFeedback(Text.of("UDP " + port), false);
+                                        ctx.getSource().sendFeedback(() -> Text.of("UDP " + port), false);
                                         portsMapped ++ ;
                                     }
                                 }
                                 if (portsMapped == 0) {
-                                    ctx.getSource().sendFeedback(Text.of("No ports are mapped."), false);
+                                    ctx.getSource().sendFeedback(() -> Text.of("No ports are mapped."), false);
                                 }
                             }
                             return 0;
