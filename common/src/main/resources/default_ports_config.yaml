@@ -1,0 +1,8 @@
+tcpPorts: [25565]
+udpPorts: []
+# put comma separated values between the brackets, e.g: [24454, 19132, etc]
+
+# Ports to consider:
+# TCP 25565 - Default port for Minecraft servers
+# UDP 24454 - Default port for Simple Voice Chat
+# UDP 19132 - Default port for Bedrock Edition servers
