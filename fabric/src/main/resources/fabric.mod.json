@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "dedicatedmcupnp",
+  "version": "${version}",
+  "name": "dedicatedmcupnp",
+  "description": "Opens ports when the server starts and closes them when it stops",
+  "authors": [
+    "PigCart"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "pigcart.dedicatedmcupnp.fabric.DedicatedMcUpnpFabric"
+    ]
+  },
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.18.2",
+    "architectury": ">=4.11.91"
+  }
+}
