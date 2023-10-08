@@ -8,7 +8,7 @@ import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 
 import java.io.IOException;
@@ -28,31 +28,31 @@ public class DedicatedMcUpnp {
     public static void init() {
         LifecycleEvent.SERVER_STARTED.register(DedicatedMcUpnp::onServerStarted);
         LifecycleEvent.SERVER_STOPPING.register(DedicatedMcUpnp::onServerStopping);
-        CommandRegistrationEvent.EVENT.register((dispatcher, selection) -> {
+        CommandRegistrationEvent.EVENT.register((dispatcher, registry, selection) -> {
             if (selection.equals(Commands.CommandSelection.DEDICATED)) {
                 LiteralArgumentBuilder<CommandSourceStack> cmd = literal("upnp")
                         .requires((commandSourceStack) -> commandSourceStack.hasPermission(4))
                         .executes(ctx -> {
                             if (!UPnP.isUPnPAvailable()) {
-                                ctx.getSource().sendSuccess(new TextComponent("UPnP is not available on this network."), false);
+                                ctx.getSource().sendSuccess(() -> Component.literal("UPnP is not available on this network."), false);
                             } else {
-                                ctx.getSource().sendSuccess(new TextComponent("IP Address: " + UPnP.getExternalIP()), false);
-                                ctx.getSource().sendSuccess(new TextComponent("The following ports are mapped: "), false);
+                                ctx.getSource().sendSuccess(() -> Component.literal("IP Address: " + UPnP.getExternalIP()), false);
+                                ctx.getSource().sendSuccess(() -> Component.literal("The following ports are mapped: "), false);
                                 int portsMapped = 0;
                                 for (int port : tcpPorts) {
                                     if (UPnP.isMappedTCP(port)) {
-                                        ctx.getSource().sendSuccess(new TextComponent("TCP " + port), false);
+                                        ctx.getSource().sendSuccess(() -> Component.literal("TCP " + port), false);
                                         portsMapped++;
                                     }
                                 }
                                 for (int port : udpPorts) {
                                     if (UPnP.isMappedUDP(port)) {
-                                        ctx.getSource().sendSuccess(new TextComponent("UDP " + port), false);
+                                        ctx.getSource().sendSuccess(() -> Component.literal("UDP " + port), false);
                                         portsMapped++;
                                     }
                                 }
                                 if (portsMapped == 0) {
-                                    ctx.getSource().sendSuccess(new TextComponent("No ports are mapped."), false);
+                                    ctx.getSource().sendSuccess(() -> Component.literal("No ports are mapped."), false);
                                 }
                             }
                             return 0;
