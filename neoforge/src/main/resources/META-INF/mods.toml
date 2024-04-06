@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[40,)"
+loaderVersion = "*"
 issueTrackerURL = "https://github.com/PigCart/dedicatedmcupnp/issues"
 license = "MIT"
 
@@ -12,22 +12,22 @@ Opens ports when the server starts and closes them when it stops
 '''
 
 [[dependencies.dedicatedmcupnp]]
-modId = "forge"
-mandatory = true
-versionRange = "[40,)"
+modId = "neoforge"
+type = "required"
+versionRange = "[${neoForgeVersion},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.dedicatedmcupnp]]
 modId = "minecraft"
-mandatory = true
-versionRange = "[1.18.2,)"
+type = "required"
+versionRange = "[${minecraftVersion},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.dedicatedmcupnp]]
 modId = "architectury"
-mandatory = true
-versionRange = "[4.11.91,)"
+type = "required"
+versionRange = "[${architecturyVersion},)"
 ordering = "AFTER"
 side = "BOTH"
