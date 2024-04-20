@@ -31,17 +31,7 @@ dependencies {
 }
 
 processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraftVersion", project.minecraft_version
-    inputs.property "architecturyVersion", project.architectury_version
-    inputs.property "neoForgeVersion", project.neoforge_version
-
-    filesMatching("META-INF/mods.toml") {
-        expand "version": project.version,
-                "minecraftVersion": project.minecraft_version,
-                "architecturyVersion": project.architectury_version,
-                "neoForgeVersion": project.neoforge_version
-    }
+    from project(":common").sourceSets.main.resources
 }
 
 shadowJar {

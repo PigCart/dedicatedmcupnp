@@ -23,6 +23,27 @@ subprojects {
         // The following line declares the yarn mappings you may select this one as well.
         // mappings "net.fabricmc:yarn:1.18.2+build.4:v2"
     }
+    processResources {
+        def expandProps = [
+                "version": mod_version,
+                "group": project.group,
+                "id": project.archives_base_name,
+                "class_name": class_name,
+                "description": project.description,
+                "license": license,
+                "minecraft_version": minecraft_version,
+                "lowest_version": lowest_minecraft_version,
+                "fabric_loader_version": fabric_loader_version,
+                "neoforge_version": neoforge_version,
+                "forge_version": forge_version,
+                "architectury_version": architectury_version
+        ]
+
+        filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml', '*.mixins.json']) {
+            expand expandProps
+        }
+        inputs.properties(expandProps)
+    }
 }
 
 allprojects {
@@ -36,14 +57,6 @@ allprojects {
 
     version = rootProject.mod_version
     group = rootProject.maven_group
-
-    repositories {
-        // Add repositories to retrieve artifacts from in here.
-        // You should only use this when depending on other mods because
-        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-        // for more information about repositories.
-    }
 
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"

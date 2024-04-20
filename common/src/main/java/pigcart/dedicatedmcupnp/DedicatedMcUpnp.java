@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import static net.minecraft.commands.Commands.literal;
 
 public class DedicatedMcUpnp {
+    public static final String modId = "dedicatedmcupnp";
     private static final Path CONFIG_FILE = Paths.get("config", "upnp.yaml");
     static Integer[] tcpPorts;
     static Integer[] udpPorts;

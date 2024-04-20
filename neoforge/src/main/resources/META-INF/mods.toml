@@ -1,33 +1,32 @@
 modLoader = "javafml"
 loaderVersion = "*"
-issueTrackerURL = "https://github.com/PigCart/dedicatedmcupnp/issues"
-license = "MIT"
+license = "${license}"
 
 [[mods]]
-modId = "dedicatedmcupnp"
+modId = "${id}"
 version = "${version}"
 authors = "PigCart"
 description = '''
-Opens ports when the server starts and closes them when it stops
+${description}
 '''
 
 [[dependencies.dedicatedmcupnp]]
 modId = "neoforge"
 type = "required"
-versionRange = "[${neoForgeVersion},)"
+versionRange = "[${neoforge_version},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.dedicatedmcupnp]]
 modId = "minecraft"
 type = "required"
-versionRange = "[${minecraftVersion},)"
+versionRange = "[${lowest_version},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.dedicatedmcupnp]]
 modId = "architectury"
 type = "required"
-versionRange = "[${architecturyVersion},)"
+versionRange = "[${architectury_version},)"
 ordering = "AFTER"
 side = "BOTH"
