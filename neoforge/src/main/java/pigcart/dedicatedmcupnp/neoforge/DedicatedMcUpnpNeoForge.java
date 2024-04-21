@@ -5,7 +5,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import pigcart.dedicatedmcupnp.DedicatedMcUpnp;
 
-@Mod(DedicatedMcUpnp.modId)
+@Mod(DedicatedMcUpnp.MOD_ID)
 public class DedicatedMcUpnpNeoForge {
 
     public DedicatedMcUpnpNeoForge(IEventBus modEventBus) {

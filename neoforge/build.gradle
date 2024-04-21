@@ -20,7 +20,6 @@ configurations {
 }
 
 dependencies {
-    shadowCommon(implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.0'))
     shadow(forgeRuntimeLibrary(implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.0')))
     neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
     // Remove the next line if you don't want to depend on the API

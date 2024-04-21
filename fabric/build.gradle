@@ -20,7 +20,6 @@ configurations {
 }
 
 dependencies {
-    shadowCommon(implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.0'))
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     modApi ("net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}") { exclude group: 'net.fabricmc', module: 'fabric-loader' }
     // Remove the next line if you don't want to depend on the API
