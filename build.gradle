@@ -1,6 +1,6 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.5.+" apply false
+    id "dev.architectury.loom" version "1.6.+" apply false
 }
 
 
@@ -34,7 +34,6 @@ subprojects {
                 "lowest_version": lowest_minecraft_version,
                 "fabric_loader_version": fabric_loader_version,
                 "neoforge_version": neoforge_version,
-                "forge_version": forge_version,
                 "architectury_version": architectury_version
         ]
 
