@@ -22,16 +22,25 @@ import java.net.HttpURLConnection;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.xml.sax.InputSource;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
+import pigcart.dedicatedmcupnp.DedicatedMcUpnp;
 
 /**
  *
@@ -39,22 +48,22 @@ import org.w3c.dom.traversal.NodeIterator;
  */
 class Gateway {
 
-    private Inet4Address iface;
-    private InetAddress routerip;
+    private final Inet4Address iface;
+    private final InetAddress routerip;
 
     private String serviceType = null, controlURL = null;
 
     public Gateway(byte[] data, Inet4Address ip, InetAddress gatewayip) throws Exception {
         iface = ip;
-        routerip=gatewayip;
+        routerip = gatewayip;
         String location = null;
-        StringTokenizer st = new StringTokenizer(new String(data), "\n");
+        StringTokenizer st = new StringTokenizer(new String(data, StandardCharsets.UTF_8), "\n");
         while (st.hasMoreTokens()) {
             String s = st.nextToken().trim();
             if (s.isEmpty() || s.startsWith("HTTP/1.") || s.startsWith("NOTIFY *")) {
                 continue;
             }
-            String name = s.substring(0, s.indexOf(':')), val = s.length() >= name.length() ? s.substring(name.length() + 1).trim() : null;
+            String name = s.substring(0, s.indexOf(':')), val = s.substring(name.length() + 1).trim();
             if (name.equalsIgnoreCase("location")) {
                 location = val;
             }
@@ -62,8 +71,43 @@ class Gateway {
         if (location == null) {
             throw new Exception("Unsupported Gateway");
         }
-        Document d;
-        d = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(location);
+        // receiving xml file manually to the buffer
+        byte[] xmlBytes = null;
+        InputStream inputStream = null;
+        ByteArrayOutputStream outputStream = null;
+        try {
+            inputStream = new BufferedInputStream(new URL(location).openConnection().getInputStream());
+            outputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            xmlBytes = outputStream.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (xmlBytes == null) {
+            throw new Exception("Unable to retrieve XML file " + location);
+        }
+        // in some XML files there may be NUL byte at the end of the file that cannot be parse, remove them
+        String xmlString = new String(xmlBytes).replaceAll("\0", "");
+        Document d = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(xmlString)));
         NodeList services = d.getElementsByTagName("service");
         for (int i = 0; i < services.getLength(); i++) {
             Node service = services.item(i);
@@ -101,16 +145,7 @@ class Gateway {
 
     private Map<String, String> command(String action, Map<String, String> params) throws Exception {
         Map<String, String> ret = new HashMap<String, String>();
-        String soap = "<?xml version=\"1.0\"?>\r\n" + "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
-                + "<SOAP-ENV:Body>"
-                + "<m:" + action + " xmlns:m=\"" + serviceType + "\">";
-        if (params != null) {
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                soap += "<" + entry.getKey() + ">" + entry.getValue() + "</" + entry.getKey() + ">";
-            }
-        }
-        soap += "</m:" + action + "></SOAP-ENV:Body></SOAP-ENV:Envelope>";
-        byte[] req = soap.getBytes();
+        final byte[] req = getReq(action, params);
         HttpURLConnection conn = (HttpURLConnection) new URL(controlURL).openConnection();
         conn.setRequestMethod("POST");
         conn.setDoOutput(true);
@@ -127,11 +162,24 @@ class Gateway {
                 if (n.getFirstChild().getNodeType() == Node.TEXT_NODE) {
                     ret.put(n.getNodeName(), n.getTextContent());
                 }
-            } catch (Throwable t) {
+            } catch (Throwable ignored) {
             }
         }
         conn.disconnect();
         return ret;
+    }
+
+    private byte[] getReq(String action, Map<String, String> params) {
+        StringBuilder soap = new StringBuilder("<?xml version=\"1.0\"?>\r\n" + "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
+                + "<SOAP-ENV:Body>"
+                + "<m:" + action + " xmlns:m=\"" + serviceType + "\">");
+        if (params != null) {
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                soap.append("<").append(entry.getKey()).append(">").append(entry.getValue()).append("</").append(entry.getKey()).append(">");
+            }
+        }
+        soap.append("</m:").append(action).append("></SOAP-ENV:Body></SOAP-ENV:Envelope>");
+        return soap.toString().getBytes();
     }
 
     public String getGatewayIP(){ return routerip.getHostAddress(); }
@@ -146,6 +194,7 @@ class Gateway {
             Map<String, String> r = command("GetExternalIPAddress", null);
             return r.get("NewExternalIPAddress");
         } catch (Throwable t) {
+            t.printStackTrace();
             return null;
         }
     }
@@ -154,7 +203,7 @@ class Gateway {
         if (port < 0 || port > 65535) {
             throw new IllegalArgumentException("Invalid port");
         }
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put("NewRemoteHost", "");
         params.put("NewProtocol", udp ? "UDP" : "TCP");
         params.put("NewInternalClient", iface.getHostAddress());
@@ -166,7 +215,8 @@ class Gateway {
         try {
             Map<String, String> r = command("AddPortMapping", params);
             return r.get("errorCode") == null;
-        } catch (Exception ex) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -182,7 +232,8 @@ class Gateway {
         try {
             command("DeletePortMapping", params);
             return true;
-        } catch (Exception ex) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -201,7 +252,7 @@ class Gateway {
                 throw new Exception();
             }
             return r.get("NewInternalPort") != null;
-        } catch (Exception ex) {
+        } catch (Exception e) {
             return false;
         }
 

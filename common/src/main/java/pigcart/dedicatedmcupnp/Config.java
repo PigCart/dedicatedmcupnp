@@ -26,16 +26,16 @@ public class Config implements Serializable {
                         udpPorts.add(Integer.valueOf(line.substring(4)));
                     } else {
                         createDefaultConfig();
-                        DedicatedMcUpnp.LOGGER.error("Invalid config entry: " + line);
+                        DedicatedMcUpnp.LOGGER.error("Invalid config entry: {}", line);
                         break;
                     }
                 }
             }
         } catch (IOException e) {
-            DedicatedMcUpnp.LOGGER.error("Error loading config: " + e);
+            DedicatedMcUpnp.LOGGER.error("Error loading config: {}", String.valueOf(e));
         } catch (NumberFormatException e) {
             createDefaultConfig();
-            DedicatedMcUpnp.LOGGER.error("Malformed config file. " + e);
+            DedicatedMcUpnp.LOGGER.error("Malformed config file. {}", String.valueOf(e));
         }
 
         // delete old version of config file
@@ -46,7 +46,7 @@ public class Config implements Serializable {
                 Files.delete(oldFile);
             }
         } catch (IOException e) {
-            DedicatedMcUpnp.LOGGER.error("Error deleting old config: " + e);
+            DedicatedMcUpnp.LOGGER.error("Error deleting old config: {}", String.valueOf(e));
         }
     }
     private static void createDefaultConfig() {
@@ -67,7 +67,7 @@ public class Config implements Serializable {
             defaultConfigInputStream.close();
             out.close();
         } catch (IOException e) {
-            DedicatedMcUpnp.LOGGER.error("Error creating default config: " + e);
+            DedicatedMcUpnp.LOGGER.error("Error creating default config: {}", String.valueOf(e));
         }
     }
 }

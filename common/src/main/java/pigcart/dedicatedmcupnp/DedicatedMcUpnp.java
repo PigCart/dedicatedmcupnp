@@ -23,7 +23,7 @@ public class DedicatedMcUpnp {
         CommandRegistrationEvent.EVENT.register((dispatcher, registry, selection) -> {
             if (selection.equals(Commands.CommandSelection.DEDICATED)) {
                 LiteralArgumentBuilder<CommandSourceStack> cmd = literal("upnp")
-                        .requires((commandSourceStack) -> commandSourceStack.hasPermission(4))
+                        .requires((commandSourceStack) -> commandSourceStack.hasPermission(4)) //"owner" permission level
                         .executes(ctx -> {
                             if (!UPnP.isUPnPAvailable()) {
                                 ctx.getSource().sendSuccess(() -> Component.literal("UPnP is not available on this network."), false);
@@ -57,23 +57,23 @@ public class DedicatedMcUpnp {
         if (server.isDedicatedServer()) {
             Config.readConfig();
             LOGGER.info("Attempting UPnP port forwarding...");
-            if (UPnP.isUPnPAvailable()) { //is UPnP available?
+            if (UPnP.isUPnPAvailable()) {
                 for (int port : Config.tcpPorts) {
-                    if (UPnP.isMappedTCP(port)) { //is the port already mapped?
-                        LOGGER.error("UPnP cannot open TCP port " + port + ": port is already mapped. (Another service might be using it!)");
-                    } else if (UPnP.openPortTCP(port, "Minecraft Server")) { //try to map port
-                        LOGGER.info("UPnP opened TCP port " + port);
+                    if (UPnP.isMappedTCP(port)) {
+                        LOGGER.error("UPnP cannot open TCP port {}: port is already mapped. (Another service might be using it!)", port);
+                    } else if (UPnP.openPortTCP(port, "Minecraft Server (dedicatedmcupnp)")) { //try to map port
+                        LOGGER.info("UPnP opened TCP port {}", port);
                     } else {
-                        LOGGER.error("UPnP failed to open TCP port " + port);
+                        LOGGER.error("UPnP failed to open TCP port {}", port);
                     }
                 }
                 for (int port : Config.udpPorts) {
-                    if (UPnP.isMappedUDP(port)) { //is the port already mapped?
-                        LOGGER.error("UPnP cannot open UDP port " + port + ": port is already mapped. (Another service might be using it!)");
-                    } else if (UPnP.openPortUDP(port, "Minecraft Server")) { //try to map port
-                        LOGGER.info("UPnP opened UDP port " + port);
+                    if (UPnP.isMappedUDP(port)) {
+                        LOGGER.error("UPnP cannot open UDP port {}: port is already mapped. (Another service might be using it!)", port);
+                    } else if (UPnP.openPortUDP(port, "Minecraft Server (dedicatedmcupnp)")) { //try to map port
+                        LOGGER.info("UPnP opened UDP port {}", port);
                     } else {
-                        LOGGER.error("UPnP failed to open UDP port " + port);
+                        LOGGER.error("UPnP failed to open UDP port {}", port);
                     }
                 }
 
@@ -88,12 +88,12 @@ public class DedicatedMcUpnp {
             LOGGER.info("Closing UPnP ports...");
             for (int port : Config.tcpPorts) {
                 if (UPnP.closePortTCP(port)) {
-                    LOGGER.info("Closed TCP port " + port);
+                    LOGGER.info("Closed TCP port {}", port);
                 }
             }
             for (int port : Config.udpPorts) {
                 if (UPnP.closePortUDP(port)) {
-                    LOGGER.info("Closed UDP port " + port);
+                    LOGGER.info("Closed UDP port {}", port);
                 }
             }
         }
