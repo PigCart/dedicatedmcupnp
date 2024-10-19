@@ -36,7 +36,7 @@ subprojects {
                 "architectury_version": architectury_version
         ]
 
-        filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml', '*.mixins.json']) {
+        filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/*mods.toml', '*.mixins.json']) {
             expand expandProps
         }
         inputs.properties(expandProps)
