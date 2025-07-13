@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "name": "${mod_name}",
+  "version": "${mod_version}",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_author}"
+  ],
+  "contact": {
+    "sources": "https://github.com/${mod_author}/${mod_id}",
+    "issues": "https://github.com/${mod_author}/${mod_id}/issues",
+    "homepage": "https://modrinth.com/mod/${mod_id}"
+  },
+  "license": "${mod_license}",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "${mod_group}.${mod_id}.loaders.fabric.FabricEntrypoint"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.12.8",
+    "fabric-api": "*",
+    "minecraft": "${version_range}"
+  },
+  "custom": {
+    "mc-publish": {
+      "dependencies": [
+        "fabric(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)"
+      ]
+    }
+  }
+}

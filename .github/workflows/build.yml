@@ -1,0 +1,29 @@
+name: build
+on: [pull_request, push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [ 1.19.4-fabric, 1.20.1-fabric, 1.21.1-neoforge ]
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+      - name: validate gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+      - name: setup jdk
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          cache: gradle
+          java-version: 21
+      - name: make gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: build
+        run: ./gradlew ${{ matrix.version }}:build --no-daemon
+      - name: capture build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.version }}
+          path: versions/${{ matrix.version }}/build/libs/*.jar
