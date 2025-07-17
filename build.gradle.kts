@@ -33,7 +33,7 @@ modstitch {
     metadata {
         modId = "dedicatedmcupnp"
         modName = "UPNP for Dedicated Servers"
-        modVersion = "2.1.0+$name"
+        modVersion = "2.1.1+$name"
         modGroup = "pigcart"
         modAuthor = "PigCart"
         modLicense = "MIT"
