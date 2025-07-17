@@ -36,4 +36,3 @@ jobs:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           files: versions/${{ matrix.version }}/build/libs/*.jar
-          name: ""

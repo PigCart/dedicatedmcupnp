@@ -163,21 +163,13 @@ public class UPnP {
         return defaultGW.isMapped(port, true);
     }
 
-    /**
-     * Gets the external IP address of the default gateway
-     *
-     * @return external IP address as string, or null if not available
-     */
-    public static String getExternalIP(){
-        if(!isUPnPAvailable()) {
-            if (defaultGW.getExternalIPv6() != null) {
-                return "[" + defaultGW.getExternalIPv6() + "]";
-            }
-            return null;
-        }
+    public static String getExternalIPv6(){
         if (defaultGW.getExternalIPv6() != null) {
             return "[" + defaultGW.getExternalIPv6() + "]";
         }
+        return "Unavailable";
+    }
+    public static String getExternalIPv4(){
         return defaultGW.getExternalIPv4();
     }
 

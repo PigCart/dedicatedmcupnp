@@ -7,6 +7,9 @@ import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.*;
+import java.util.Enumeration;
+
 public class DedicatedMcUpnp {
     public static final String MOD_ID = "dedicatedmcupnp";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
@@ -19,7 +22,27 @@ public class DedicatedMcUpnp {
                     if (!UPnP.isUPnPAvailable()) {
                         StonecutterUtil.sendMsg(ctx, "UPnP is not available on this network.");
                     } else {
-                        StonecutterUtil.sendMsg(ctx, "IP Address: " + UPnP.getExternalIP());
+                        StonecutterUtil.sendMsg(ctx, "IPv4 Address: " + UPnP.getExternalIPv4());
+                        try {
+                            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+                            while (networkInterfaces.hasMoreElements()) {
+                                NetworkInterface netInterface = networkInterfaces.nextElement();
+                                if (netInterface.isUp() && !netInterface.isLoopback() && !netInterface.isVirtual() && !netInterface.getName().startsWith("tunnel")) {
+                                    Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
+                                    while (addresses.hasMoreElements()) {
+                                        InetAddress address = addresses.nextElement();
+                                        if (address instanceof Inet6Address
+                                                && !address.isAnyLocalAddress()
+                                                && !address.isLinkLocalAddress()
+                                                && !address.isLoopbackAddress()
+                                        ) {
+                                            // seems to be no way to distinguish between temporary and private addresses here
+                                            StonecutterUtil.sendMsg(ctx, "IPv6 address: " + address);
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (Exception ignored) {}
                         StonecutterUtil.sendMsg(ctx, "The following ports are mapped: ");
                         int portsMapped = 0;
                         for (int port : Config.tcpPorts) {
@@ -49,7 +72,7 @@ public class DedicatedMcUpnp {
             if (UPnP.isUPnPAvailable()) {
                 for (int port : Config.tcpPorts) {
                     if (UPnP.isMappedTCP(port)) {
-                        LOGGER.error("UPnP cannot open TCP port {}: port is already mapped. (Another service might be using it!)", port);
+                        LOGGER.warn("TCP port {} is already mapped. (Either another service is using it or your server did not shut down correctly!)", port);
                     } else if (UPnP.openPortTCP(port, "Minecraft Server (dedicatedmcupnp)")) {
                         LOGGER.info("UPnP opened TCP port {}", port);
                     } else {
@@ -58,7 +81,7 @@ public class DedicatedMcUpnp {
                 }
                 for (int port : Config.udpPorts) {
                     if (UPnP.isMappedUDP(port)) {
-                        LOGGER.error("UPnP cannot open UDP port {}: port is already mapped. (Another service might be using it!)", port);
+                        LOGGER.warn("UDP port {} is already mapped. (Either another service is using it or your server did not shut down correctly!)", port);
                     } else if (UPnP.openPortUDP(port, "Minecraft Server (dedicatedmcupnp)")) {
                         LOGGER.info("UPnP opened UDP port {}", port);
                     } else {

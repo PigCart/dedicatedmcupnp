@@ -1,3 +1,7 @@
+## Development Status July 2025
+I have not hosted servers at home for a few years now, and in the intervening time it appears my home network has come to not support forwarding or pinholes of any kind, the possible reasons for which are frankly beyond me. I thus have neither the motivation nor the means to continue this project. Please feel free to fork and republish.
+
+
 # UPNP for dedicated Minecraft servers
 
 UPNP for dedicated Fabric/NeoForge Minecraft Servers (as opposed to LAN servers, which there are plenty of other equivalent mods for).
@@ -10,6 +14,7 @@ You can use an [online port checker](https://www.ecosia.org/search?q=open%20port
 
 This primarily just wraps the [WaifUPnP](https://github.com/adolfintel/WaifUPnP) library as a minecraft mod,
 binding the functions of the library to the server lifecyle and a command. The library has been modified slightly to log errors and implement some of the pending PRs on the original project as well as bugfixes from its forks.
+
 
 ## Downloads
 

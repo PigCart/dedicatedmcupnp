@@ -107,6 +107,7 @@ class Gateway {
     }
 
     private Map<String, String> command(String action, Map<String, String> params) throws Exception {
+        //DedicatedMcUpnp.LOGGER.info("Running command: {}", action);
         Map<String, String> ret = new HashMap<String, String>();
         String soap = "<?xml version=\"1.0\"?>\r\n" + "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
                 + "<SOAP-ENV:Body>"
@@ -220,11 +221,11 @@ class Gateway {
             if (r.get("errorCode") == null) {
                 return true;
             } else {
-                DedicatedMcUpnp.LOGGER.error("Error code: " + r.get("errorCode"));
+                DedicatedMcUpnp.LOGGER.error("Error opening port: {}", r.get("errorCode"));
                 return false;
             }
         } catch (Exception e) {
-            DedicatedMcUpnp.LOGGER.error(e.getMessage());
+            DedicatedMcUpnp.LOGGER.error("Error opening port: {}", e.getMessage());
             return false;
         }
     }
@@ -241,7 +242,7 @@ class Gateway {
             command("DeletePortMapping", params);
             return true;
         } catch (Exception e) {
-            DedicatedMcUpnp.LOGGER.error(e.getMessage());
+            DedicatedMcUpnp.LOGGER.error("Error closing port: {}", e.getMessage());
             return false;
         }
     }
@@ -257,11 +258,12 @@ class Gateway {
         try {
             Map<String, String> r = command("GetSpecificPortMappingEntry", params);
             if (r.get("errorCode") != null) {
-                throw new Exception();
+                DedicatedMcUpnp.LOGGER.error("Error getting mapping: " + r.get("errorCode"));
+                return false;
             }
             return r.get("NewInternalPort") != null;
         } catch (Exception e) {
-            DedicatedMcUpnp.LOGGER.error(e.getMessage());
+            DedicatedMcUpnp.LOGGER.error("Error getting mapping: " + e.getMessage());
             return false;
         }
 

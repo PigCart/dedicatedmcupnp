@@ -49,45 +49,47 @@ abstract class GatewayFinder {
     private class GatewayListener extends Thread {
 
         private Inet4Address ip;
-        private String req;
+        private String request;
 
-        public GatewayListener(Inet4Address ip, String req) {
-            setName("WaifUPnP - Gateway Listener");
+        public GatewayListener(Inet4Address ip, String request) {
+            setName("Gateway Listener");
             this.ip = ip;
-            this.req = req;
+            this.request = request;
         }
 
         @Override
         public void run() {
             boolean foundgw = false;
-            Gateway gw = null;
+            Gateway gateway = null;
             try {
-                byte[] req = this.req.getBytes();
+                byte[] request = this.request.getBytes();
                 DatagramSocket s = new DatagramSocket(new InetSocketAddress(ip, 0));
-                s.send(new DatagramPacket(req, req.length, new InetSocketAddress("239.255.255.250", 1900)));
+                // The Simple Service Discovery Protocol uses multicast address 239.255.255.250 on UDP port 1900
+                s.send(new DatagramPacket(request, request.length, new InetSocketAddress("239.255.255.250", 1900)));
                 s.setSoTimeout(3000);
                 while (true) {
                     try {
-                        DatagramPacket recv = new DatagramPacket(new byte[1536], 1536);
-                        s.receive(recv);
-                        gw = new Gateway(recv.getData(), ip, recv.getAddress());
-                        String extIp = gw.getExternalIPv4();
+                        DatagramPacket packet = new DatagramPacket(new byte[1536], 1536);
+                        s.receive(packet);
+                        gateway = new Gateway(packet.getData(), ip, packet.getAddress());
+                        String extIp = gateway.getExternalIPv4();
                         if (extIp!=null && !extIp.equalsIgnoreCase("0.0.0.0")){ //Exclude gateways without an external IP
-                            gatewayFound(gw);
+                            gatewayFound(gateway);
                             foundgw=true;
                         }
-                    } catch (SocketTimeoutException t) {
-                        DedicatedMcUpnp.LOGGER.error(t.getMessage());
+                    } catch (SocketTimeoutException ignored) {
+                        // seems to throw regardless of whether receive was successful
                         break;
                     } catch (Throwable t) {
-                        DedicatedMcUpnp.LOGGER.error(t.getMessage());
+                        DedicatedMcUpnp.LOGGER.error("Error finding gateway: {}", t.getMessage());
                     }
                 }
             } catch (Throwable t) {
-                DedicatedMcUpnp.LOGGER.error(t.getMessage());
+                DedicatedMcUpnp.LOGGER.error("Error finding gateway: {}", t.getMessage());
             }
-            if (!foundgw && gw != null) { //Pick the last GW if none have an external IP - internet not up yet??
-                gatewayFound(gw);
+            if (!foundgw && gateway != null) { //Pick the last GW if none have an external IP - internet not up yet??
+                DedicatedMcUpnp.LOGGER.info("Picking last gateway as none have external IP");
+                gatewayFound(gateway);
             }
         }
     }
@@ -96,10 +98,10 @@ abstract class GatewayFinder {
 
     public GatewayFinder() {
         for (Inet4Address ip : getLocalIPs()) {
-            for (String req : SEARCH_MESSAGES) {
-                GatewayListener l = new GatewayListener(ip, req);
-                l.start();
-                listeners.add(l);
+            for (String request : SEARCH_MESSAGES) {
+                GatewayListener listener = new GatewayListener(ip, request);
+                listener.start();
+                listeners.add(listener);
             }
         }
     }
@@ -136,11 +138,11 @@ abstract class GatewayFinder {
                         }
                     }
                 } catch (Throwable t) {
-                    DedicatedMcUpnp.LOGGER.error(t.getMessage());
+                    DedicatedMcUpnp.LOGGER.error("Error getting local IPs: {}", t.getMessage());
                 }
             }
         } catch (Throwable t) {
-            DedicatedMcUpnp.LOGGER.error(t.getMessage());
+            DedicatedMcUpnp.LOGGER.error("Error getting local IPs: {}", t.getMessage());
         }
         return ret.toArray(new Inet4Address[]{});
     }

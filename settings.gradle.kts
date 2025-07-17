@@ -19,7 +19,7 @@ pluginManagement {
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.7-beta.4"
+    id("dev.kikugie.stonecutter") version "0.7"
 }
 
 stonecutter {
@@ -35,7 +35,7 @@ stonecutter {
             loaders.forEach { vers("$name-$it", mcVersion) }
 
         // Configure your targets here!
-        mc("1.21.1", loaders = listOf("neoforge"))
+        mc("1.20.6", loaders = listOf("neoforge"))
         mc("1.20.1", loaders = listOf("fabric")) // forge is bugged
         mc("1.19.4", loaders = listOf("fabric"))
 

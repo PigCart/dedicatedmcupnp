@@ -28,7 +28,8 @@
     "mc-publish": {
       "dependencies": [
         "fabric(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)"
-      ]
+      ],
+      "version": "${mod_version}"
     }
   }
 }

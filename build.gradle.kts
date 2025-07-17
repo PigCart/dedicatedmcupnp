@@ -18,7 +18,7 @@ modstitch {
     javaTarget = when (minecraft) {
         "1.19.4" -> 17
         "1.20.1" -> 17
-        "1.21.1" -> 21
+        "1.20.6" -> 21
         else -> throw IllegalArgumentException("Please store the java version for ${property("deps.minecraft")} in build.gradle.kts!")
     }
 

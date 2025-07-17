@@ -24,3 +24,4 @@ versionRange="${version_range}"
 
 [mc-publish]
 loaders=["${forge_or_neoforge}"]
+version="${mod_version}"
